@@ -1,0 +1,5 @@
+# Comma-separated tokens, to be used for authentication
+# Example:
+# token: "token1, token2"
+
+token: ""
