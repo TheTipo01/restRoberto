@@ -48,7 +48,8 @@ impl HttpClient {
             return Err(ureq::Error::Status(resp.status(), resp));
         }
 
-        let req = ureq::get(&(self.path.clone() + "/temp/" + &resp.into_string()? + ".mp3"))
+        // the server gives the path, no need to add /temp/ and .mp3 by ourselves
+        let req = ureq::get(&(self.path.clone() + &resp.into_string()?))
             .timeout(self.timeout);
         let resp = req.call()?;
 
