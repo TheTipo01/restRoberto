@@ -4,9 +4,22 @@
 
 restRoberto - Simple HTTP API that generates audio file with the (not so) famous Roberto voice.
 
-## Usage
-Make a GET request to the `/audio` endpoint with the following paramaters: 
-- `token` with one of the tokens you specified in the config.yml
-- `text` with the text you want to be generated
+## Endpoints
 
-The server will respond with code `202` and the path on the server where you can find the newly generated audio file, in the form of `/temp/UUID.mp3`.
+### GET `/audio`
+
+Generates audio from the provided text and replies with status code 202 and the audio path.
+
+Query parameters:
+
+- `token`: the authorization token
+- `text`: the text used to generate the audio
+
+Example query: `GET https://rest.roberto.site/audio?token=valid_token&text=nyanpasu`
+
+### GET `/temp/:uuid.mp3`
+
+Get previously generated audio.
+This is not meant to be used manually because the enpoint at `/audio` replies automatically with the full audio path.
+
+This endpoint does not require authentication.
