@@ -25,7 +25,6 @@ archives:
       - README.md
       - LICENSE
       - example_config.yml
-      - gen.bat
 checksum:
   name_template: checksums.txt
 snapshot:
