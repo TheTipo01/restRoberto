@@ -55,7 +55,7 @@ func main() {
 	r.PathPrefix("/temp/").Handler(http.StripPrefix("/temp/", http.FileServer(http.Dir("./temp"))))
 
 	http.Handle("/", r)
-	http.ListenAndServe(":8087", nil)
+	_ = http.ListenAndServe(":8087", nil)
 }
 
 func audio(w http.ResponseWriter, r *http.Request) {
@@ -65,7 +65,7 @@ func audio(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	uuid := libroberto.GenAudio(query.Get("text"), audioExtension, 30*time.Second)
+	uuid := libroberto.GenAudio(query.Get("text"), "mp3", time.Second*30)
 
 	w.WriteHeader(http.StatusAccepted)
 	_, _ = fmt.Fprintf(w, "/temp/"+uuid+audioExtension)
