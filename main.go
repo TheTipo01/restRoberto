@@ -1,17 +1,14 @@
 package main
 
 import (
-	"crypto/sha1"
-	"encoding/base32"
 	"fmt"
-	"github.com/fsnotify/fsnotify"
+	libroberto "github.com/TheTipo01/libRoberto"
+	"github.com/bwmarrin/lit"
 	"github.com/gorilla/mux"
-	"github.com/spf13/viper"
-	"log"
+	"github.com/kkyr/fig"
 	"net/http"
-	"os"
-	"os/exec"
 	"strings"
+	"time"
 )
 
 const (
@@ -23,33 +20,32 @@ var (
 )
 
 func init() {
-	viper.SetConfigName("config")
-	viper.SetConfigType("yml")
-	viper.AddConfigPath(".")
+	var cfg config
 
-	if err := viper.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			// Config file not found
-			fmt.Println("Config file not found")
-			return
-		}
+	lit.LogLevel = lit.LogError
+
+	err := fig.Load(&cfg, fig.File("config.yml"))
+	if err != nil {
+		lit.Error(err.Error())
+		return
+	}
+
+	// Set lit.LogLevel to the given value
+	switch strings.ToLower(cfg.LogLevel) {
+	case "logwarning", "warning":
+		lit.LogLevel = lit.LogWarning
+
+	case "loginformational", "informational":
+		lit.LogLevel = lit.LogInformational
+
+	case "logdebug", "debug":
+		lit.LogLevel = lit.LogDebug
 	}
 
 	// Loads tokens
-	for _, t := range strings.Split(viper.GetString("token"), ",") {
+	for _, t := range cfg.Token {
 		token[t] = true
 	}
-
-	viper.WatchConfig()
-	viper.OnConfigChange(func(e fsnotify.Event) {
-		log.Println("Reloading config file")
-		token = make(map[string]bool)
-
-		for _, t := range strings.Split(viper.GetString("token"), ",") {
-			token[t] = true
-		}
-	})
-
 }
 
 func main() {
@@ -69,37 +65,8 @@ func audio(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	uuid := genAudio(query.Get("text"))
+	uuid := libroberto.GenAudio(query.Get("text"), audioExtension, 30*time.Second)
 
 	w.WriteHeader(http.StatusAccepted)
 	_, _ = fmt.Fprintf(w, "/temp/"+uuid+audioExtension)
-}
-
-// Generates audio from a string. Checks if it already exist before generating it
-func gen(text string, uuid string) {
-	_, err := os.Stat("./temp/" + uuid + audioExtension)
-
-	if err != nil {
-		tts := exec.Command("balcon", "-i", "-o", "-enc", "utf8", "-n", "Roberto")
-		tts.Stdin = strings.NewReader(text)
-		ttsOut, _ := tts.StdoutPipe()
-		_ = tts.Start()
-
-		ffmpeg := exec.Command("ffmpeg", "-i", "pipe:0", "-f", "s16le", "-ar", "48000", "-ac", "2", "-f", "mp3", "./temp/"+uuid+audioExtension)
-		ffmpeg.Stdin = ttsOut
-		_ = ffmpeg.Run()
-
-		_ = tts.Wait()
-	}
-}
-
-// genAudio generates a mp3 file from a string, returning it's UUID (aka SHA1 hash of the text)
-func genAudio(text string) string {
-	h := sha1.New()
-	h.Write([]byte(text))
-	uuid := strings.ToUpper(base32.HexEncoding.EncodeToString(h.Sum(nil)))
-
-	gen(text, uuid)
-
-	return uuid
 }

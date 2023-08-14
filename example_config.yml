@@ -1,5 +1,7 @@
-# Comma-separated tokens, to be used for authentication
-# Example:
-# token: "token1, token2"
+# Tokens used for authentication purposes
+token:
+  - "token1"
+  - "token2"
 
-token: ""
+# Log level
+loglevel: informational
