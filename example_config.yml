@@ -3,5 +3,12 @@ token:
   - "token1"
   - "token2"
 
+# Path to the Balcon executable
+# Note: under docker, use "C:\\roberto\\balcon.exe
+balconpath: "balcon.exe"
+
+# Server listening address
+address: ":8087"
+
 # Log level
 loglevel: informational

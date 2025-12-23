@@ -16,3 +16,8 @@ Query parameters:
 
 Example query: `GET https://rest.roberto.site/audio?token=valid_token&text=nyanpasu`
 
+# Dockerfile
+There's now a dockerfile that helps you to deploy restRoberto easily using Docker under wine.
+You need to provide
+- `roberto_setup.exe`, the Loquendo Roberto voice installer, in the same directory as the Dockerfile
+- `LoqTTS6.dll`, the patched DLL, as it's practically impossible to activate the voice headlessly

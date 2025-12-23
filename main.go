@@ -2,16 +2,18 @@ package main
 
 import (
 	"net/http"
+	"os/exec"
 	"strings"
 
-	libroberto "github.com/TheTipo01/libRoberto"
 	"github.com/bwmarrin/lit"
 	"github.com/gorilla/mux"
 	"github.com/kkyr/fig"
 )
 
 var (
-	token map[string]bool
+	token      map[string]bool
+	balconPath string
+	address    string
 )
 
 func init() {
@@ -24,6 +26,9 @@ func init() {
 		lit.Error(err.Error())
 		return
 	}
+
+	balconPath = cfg.BalconPath
+	address = cfg.Address
 
 	// Set lit.LogLevel to the given value
 	switch strings.ToLower(cfg.LogLevel) {
@@ -50,7 +55,7 @@ func main() {
 	r.HandleFunc("/audio", audio).Methods("GET")
 
 	http.Handle("/", r)
-	_ = http.ListenAndServe(":8087", nil)
+	_ = http.ListenAndServe(address, nil)
 }
 
 func audio(w http.ResponseWriter, r *http.Request) {
@@ -60,11 +65,12 @@ func audio(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cmds := libroberto.GenRawAudio(query.Get("text"))
-	cmds[0].Stdout = w
-	libroberto.CmdsStart(cmds)
+	tts := exec.Command(balconPath, "-i", "-o", "-enc", "utf8", "-n", "Roberto", "-fr", "16", "-ch", "1", "-bt", "16")
+	tts.Stdin = strings.NewReader(query.Get("text"))
+	tts.Stdout = w
+	_ = tts.Start()
 
 	w.WriteHeader(http.StatusAccepted)
 
-	libroberto.CmdsWait(cmds)
+	_ = tts.Wait()
 }
