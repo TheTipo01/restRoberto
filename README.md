@@ -7,7 +7,7 @@ restRoberto - Simple HTTP API that generates audio file with the (not so) famous
 
 ### GET `/audio`
 
-Generates audio from the provided text and replies with status code 202 and the audio path.
+Generates audio from the provided text and replies with status code 202 and the audio as raw PCM.
 
 Query parameters:
 
@@ -16,9 +16,3 @@ Query parameters:
 
 Example query: `GET https://rest.roberto.site/audio?token=valid_token&text=nyanpasu`
 
-### GET `/temp/:uuid.mp3`
-
-Get previously generated audio.
-This is not meant to be used manually because the enpoint at `/audio` replies automatically with the full audio path.
-
-This endpoint does not require authentication.

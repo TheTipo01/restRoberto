@@ -1,22 +1,17 @@
 package main
 
 import (
-	"fmt"
+	"net/http"
+	"strings"
+
 	libroberto "github.com/TheTipo01/libRoberto"
 	"github.com/bwmarrin/lit"
 	"github.com/gorilla/mux"
 	"github.com/kkyr/fig"
-	"net/http"
-	"strings"
-	"time"
-)
-
-const (
-	audioExtension = ".mp3"
 )
 
 var (
-	token = make(map[string]bool)
+	token map[string]bool
 )
 
 func init() {
@@ -43,6 +38,7 @@ func init() {
 	}
 
 	// Loads tokens
+	token = make(map[string]bool, len(cfg.Token))
 	for _, t := range cfg.Token {
 		token[t] = true
 	}
@@ -52,7 +48,6 @@ func main() {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/audio", audio).Methods("GET")
-	r.PathPrefix("/temp/").Handler(http.StripPrefix("/temp/", http.FileServer(http.Dir("./temp"))))
 
 	http.Handle("/", r)
 	_ = http.ListenAndServe(":8087", nil)
@@ -65,8 +60,11 @@ func audio(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	uuid := libroberto.GenAudio(query.Get("text"), "mp3", time.Second*30)
+	cmds := libroberto.GenRawAudio(query.Get("text"))
+	cmds[0].Stdout = w
+	libroberto.CmdsStart(cmds)
 
 	w.WriteHeader(http.StatusAccepted)
-	_, _ = fmt.Fprintf(w, "/temp/"+uuid+audioExtension)
+
+	libroberto.CmdsWait(cmds)
 }
