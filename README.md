@@ -13,6 +13,7 @@ Query parameters:
 
 - `token`: the authorization token
 - `text`: the text used to generate the audio
+- `voice`: the voice to use (Roberto or Paola). Default is Roberto.
 
 Example query: `GET https://rest.roberto.site/audio?token=valid_token&text=nyanpasu`
 

@@ -22,6 +22,7 @@ RUN dpkg --add-architecture i386 && apt-get update && \
 RUN mkdir /roberto
 
 COPY ./roberto_setup.exe /roberto
+COPY ./paola_setup.exe /roberto
 
 # Supresses wine gui popups
 ENV WINEARCH=win32
@@ -34,6 +35,7 @@ RUN xvfb-run -a winetricks -q speechsdk
 
 # Install Loquendo Roberto and patch the DLL
 RUN xvfb-run -a wine /roberto/roberto_setup.exe /SILENT && wineserver -w && rm /roberto/roberto_setup.exe && rm "/root/.wine/drive_c/Program Files/Loquendo/LTTS/LoqTTS6.dll"
+RUN xvfb-run -a wine /roberto/paola_setup.exe /SILENT && wineserver -w && rm /roberto/paola_setup.exe && rm "/root/.wine/drive_c/Program Files/Loquendo/LTTS/LoqTTS6.dll"
 ARG target="/root/.wine/drive_c/Program Files/Loquendo/LTTS/LoqTTS6.dll"
 COPY ./LoqTTS6.dll ${target}
 

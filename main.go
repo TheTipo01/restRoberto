@@ -65,7 +65,12 @@ func audio(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tts := exec.Command(balconPath, "-i", "-o", "-enc", "utf8", "-n", "Roberto", "-fr", "16", "-ch", "1", "-bt", "16")
+	voice := query.Get("voice")
+	if voice == "" {
+		voice = "Roberto"
+	}
+
+	tts := exec.Command(balconPath, "-i", "-o", "-enc", "utf8", "-n", voice, "-fr", "16", "-ch", "1", "-bt", "16")
 	tts.Stdin = strings.NewReader(query.Get("text"))
 	tts.Stdout = w
 	_ = tts.Start()
