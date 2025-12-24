@@ -32,14 +32,14 @@ RUN wget -O /usr/bin/winetricks https://raw.githubusercontent.com/Winetricks/win
     rm /usr/bin/winetricks
 
 # Install Loquendo Roberto
-RUN wget -O roberto_setup.exe https://archive.org/download/loquendo-6-voices-pack-multilanguage-with-crack-dll/Languages%20and%20voices/Raffaele%20-%20Italian.exe &&  \
+RUN wget -O /roberto/roberto_setup.exe https://archive.org/download/loquendo-6-voices-pack-multilanguage-with-crack-dll/Languages%20and%20voices/Raffaele%20-%20Italian.exe &&  \
     xvfb-run -a wine /roberto/roberto_setup.exe /SILENT &&  \
     wineserver -w &&  \
     rm /roberto/roberto_setup.exe &&  \
     rm "/root/.wine/drive_c/Program Files/Loquendo/LTTS/LoqTTS6.dll" \
 
 # Install Loquendo Paola
-RUN wget -O paola_setup.exe https://archive.org/download/loquendo-6-voices-pack-multilanguage-with-crack-dll/Languages%20and%20voices/Paola%20-%20Italian.exe &&  \
+RUN wget -O /roberto/paola_setup.exe https://archive.org/download/loquendo-6-voices-pack-multilanguage-with-crack-dll/Languages%20and%20voices/Paola%20-%20Italian.exe &&  \
     xvfb-run -a wine /roberto/paola_setup.exe /SILENT &&  \
     wineserver -w &&  \
     rm /roberto/paola_setup.exe &&  \
