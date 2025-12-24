@@ -11,8 +11,8 @@ FROM debian:trixie-slim
 RUN mkdir -pm755 /etc/apt/keyrings
 
 RUN dpkg --add-architecture i386 && apt-get update && \
-    apt-get install -y --no-install-recommends ca-certificates wget curl gpg && \
-    curl -fsSL https://dl.winehq.org/wine-builds/winehq.key | gpg --dearmor -o /etc/apt/keyrings/winehq-archive.key && \
+    apt-get install -y --no-install-recommends ca-certificates wget gpg && \
+    wget -qO - https://dl.winehq.org/wine-builds/winehq.key | gpg --dearmor -o /etc/apt/keyrings/winehq-archive.key && \
     wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/debian/dists/trixie/winehq-trixie.sources && \
     apt-get update && \
     apt-get install -y --no-install-recommends winehq-stable xvfb xauth unzip && \
@@ -21,23 +21,32 @@ RUN dpkg --add-architecture i386 && apt-get update && \
 
 RUN mkdir /roberto
 
-COPY ./roberto_setup.exe /roberto
-COPY ./paola_setup.exe /roberto
-
 # Supresses wine gui popups
 ENV WINEARCH=win32
 ENV WINEDLLOVERRIDES="mscoree,mshtml="
 
 # Install Speech SDK dependency (for SAPI support)
-RUN curl -o /usr/bin/winetricks https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks && \
-    chmod +x /usr/bin/winetricks
-RUN xvfb-run -a winetricks -q speechsdk
+RUN wget -O /usr/bin/winetricks https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks && \
+    chmod +x /usr/bin/winetricks && \
+    xvfb-run -a winetricks -q speechsdk && \
+    rm /usr/bin/winetricks
 
-# Install Loquendo Roberto and patch the DLL
-RUN xvfb-run -a wine /roberto/roberto_setup.exe /SILENT && wineserver -w && rm /roberto/roberto_setup.exe && rm "/root/.wine/drive_c/Program Files/Loquendo/LTTS/LoqTTS6.dll"
-RUN xvfb-run -a wine /roberto/paola_setup.exe /SILENT && wineserver -w && rm /roberto/paola_setup.exe && rm "/root/.wine/drive_c/Program Files/Loquendo/LTTS/LoqTTS6.dll"
-ARG target="/root/.wine/drive_c/Program Files/Loquendo/LTTS/LoqTTS6.dll"
-COPY ./LoqTTS6.dll ${target}
+# Install Loquendo Roberto
+RUN wget -O roberto_setup.exe https://archive.org/download/loquendo-6-voices-pack-multilanguage-with-crack-dll/Languages%20and%20voices/Raffaele%20-%20Italian.exe &&  \
+    xvfb-run -a wine /roberto/roberto_setup.exe /SILENT &&  \
+    wineserver -w &&  \
+    rm /roberto/roberto_setup.exe &&  \
+    rm "/root/.wine/drive_c/Program Files/Loquendo/LTTS/LoqTTS6.dll" \
+
+# Install Loquendo Paola
+RUN wget -O paola_setup.exe https://archive.org/download/loquendo-6-voices-pack-multilanguage-with-crack-dll/Languages%20and%20voices/Paola%20-%20Italian.exe &&  \
+    xvfb-run -a wine /roberto/paola_setup.exe /SILENT &&  \
+    wineserver -w &&  \
+    rm /roberto/paola_setup.exe &&  \
+    rm "/root/.wine/drive_c/Program Files/Loquendo/LTTS/LoqTTS6.dll"
+
+# Patch the DLL
+RUN wget -O "/root/.wine/drive_c/Program Files/Loquendo/LTTS/LoqTTS6.dll" https://archive.org/download/loquendo-6-voices-pack-multilanguage-with-crack-dll/Crack%20dll/LoqTTS6.dll
 
 RUN mkdir /root/.wine/drive_c/roberto
 WORKDIR /root/.wine/drive_c/roberto
